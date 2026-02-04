@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}DayyShort - Episodes{% endblock %}
+
+{% block page_title %}Detail Serial{% endblock %}
+
+{% block content %}
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Memuat episode...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message" style="display: none;">
+        <p>❌ Gagal memuat data. Silakan coba lagi nanti.</p>
+    </div>
+
+    <!-- Serial Info Section -->
+    <section id="serialInfo" class="serial-info-section" style="display: none;">
+        <!-- Serial Header Card -->
+        <div class="serial-header-card">
+            <div class="serial-cover-wrapper">
+                <img id="serialCover" src="" alt="Serial Cover" class="serial-cover-large">
+                <div class="serial-cover-overlay">
+                    <button class="btn-play-trailer">
+                        <span class="play-icon-large">▶️</span>
+                        <span>Play Trailer</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="serial-info-content">
+                <h1 id="serialTitle" class="serial-title-large"></h1>
+                
+                <div id="serialLabels" class="serial-labels-wrapper"></div>
+                
+                <p id="serialIntro" class="serial-description"></p>
+                
+                <!-- Serial Stats Grid -->
+                <div class="serial-stats-grid">
+                    <div class="serial-stat-item">
+                        <div class="stat-icon-circle">📺</div>
+                        <div>
+                            <div class="stat-value" id="totalEpisode">0</div>
+                            <div class="stat-label-small">Total Episode</div>
+                        </div>
+                    </div>
+                    
+                    <div class="serial-stat-item">
+                        <div class="stat-icon-circle">✅</div>
+                        <div>
+                            <div class="stat-value" id="isFinish">-</div>
+                            <div class="stat-label-small">Status</div>
+                        </div>
+                    </div>
+                    
+                    <div class="serial-stat-item">
+                        <div class="stat-icon-circle">💰</div>
+                        <div>
+                            <div class="stat-value" id="goldCoinPrice">0</div>
+                            <div class="stat-label-small">Harga Koin</div>
+                        </div>
+                    </div>
+                    
+                    <div class="serial-stat-item">
+                        <div class="stat-icon-circle">🆓</div>
+                        <div>
+                            <div class="stat-value" id="payPoint">0</div>
+                            <div class="stat-label-small">Free Episode</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="serial-actions">
+                    <button class="btn-action btn-primary">
+                        <span>▶️</span> Mulai Nonton
+                    </button>
+                    <button class="btn-action btn-secondary">
+                        <span>⭐</span> Tambah Favorit
+                    </button>
+                    <button class="btn-action btn-secondary">
+                        <span>📤</span> Bagikan
+                    </button>
+                </div>
+                
+                <!-- Social Stats -->
+                <div class="serial-social-stats">
+                    <div class="social-stat-item">
+                        <span class="social-icon">👍</span>
+                        <span id="defaultLikeNums">0</span>
+                        <span class="social-label">Likes</span>
+                    </div>
+                    <div class="social-stat-item">
+                        <span class="social-icon">📌</span>
+                        <span id="defaultChaseNums">0</span>
+                        <span class="social-label">Following</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Episodes Section -->
+    <section id="episodesSection" class="episodes-section" style="display: none;">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Daftar Episode</h2>
+                <p class="section-subtitle" id="episodeCount">0 episode tersedia</p>
+            </div>
+            
+            <div class="section-actions">
+                <button class="filter-btn">
+                    <span>🔽</span> Urutkan
+                </button>
+                <select class="sort-select" id="episodeSort">
+                    <option value="asc">Episode 1 → N</option>
+                    <option value="desc">Episode N → 1</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Episodes Grid (2 Columns) -->
+        <div id="episodesGrid" class="episodes-grid"></div>
+    </section>
+
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="modal video-modal">
+        <div class="modal-content video-modal-content">
+            <span class="close video-close">&times;</span>
+            <div id="videoPlayer" class="video-player-container">
+                <video id="videoElement" class="video-element" controls autoplay>
+                    <source src="" type="video/mp4">
+                    Browser Anda tidak mendukung video tag.
+                </video>
+                <div class="video-info-overlay">
+                    <h3 id="videoTitle">Episode Title</h3>
+                    <div class="video-meta">
+                        <span id="videoLikes" class="video-meta-item">
+                            <span class="meta-icon">👍</span> 0
+                        </span>
+                        <span id="videoChases" class="video-meta-item">
+                            <span class="meta-icon">📌</span> 0
+                        </span>
+                        <span class="video-meta-item">
+                            <span class="meta-icon">👁️</span> <span id="videoViews">0</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Serial Info Section */
+.serial-info-section {
+    margin-bottom: 40px;
+}
+
+.serial-header-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #1a2332 100%);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 40px;
+    padding: 30px;
+    position: relative;
+}
+
+.serial-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.serial-cover-wrapper {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.serial-cover-large {
+    width: 100%;
+    height: 550px;
+    object-fit: cover;
+    display: block;
+}
+
+.serial-cover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 30px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.serial-cover-wrapper:hover .serial-cover-overlay {
+    opacity: 1;
+}
+
+.btn-play-trailer {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+
+.btn-play-trailer:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6);
+}
+
+.play-icon-large {
+    font-size: 1.3rem;
+}
+
+.serial-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.serial-title-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.serial-labels-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.serial-description {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1rem;
+}
+
+.serial-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.serial-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label-small {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.serial-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-action {
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    flex: 1;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+}
+
+.btn-secondary {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+.serial-social-stats {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+    background: rgba(236, 72, 153, 0.1);
+    border-radius: 12px;
+}
+
+.social-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.social-icon {
+    font-size: 1.3rem;
+}
+
+.social-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-left: 5px;
+}
+
+/* Episodes Grid (2 Columns) */
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.episode-card {
+    background: var(--bg-card);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: pointer;
+    display: flex;
+    height: 200px;
+}
+
+.episode-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+.episode-thumbnail-wrapper {
+    position: relative;
+    width: 150px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.episode-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.episode-card:hover .episode-thumbnail {
+    transform: scale(1.1);
+}
+
+.episode-number-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.episode-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.badge-locked {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.badge-vip {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+}
+
+.badge-free {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+}
+
+.episode-play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.episode-card:hover .episode-play-overlay {
+    opacity: 1;
+}
+
+.episode-play-icon {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.episode-info-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.episode-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.episode-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.episode-meta-item {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.episode-quality-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Video Modal */
+.video-modal {
+    z-index: 3000;
+}
+
+.video-modal-content {
+    max-width: 1200px;
+    padding: 0;
+    background: #000;
+}
+
+.video-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 3001;
+    color: white;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    padding: 0;
+}
+
+.video-close:hover {
+    background: var(--accent-color);
+}
+
+.video-player-container {
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.video-element {
+    width: 100%;
+    height: auto;
+    max-height: 75vh;
+    display: block;
+}
+
+.video-info-overlay {
+    padding: 25px 30px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, #1a2332 100%);
+}
+
+.video-info-overlay h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.video-meta {
+    display: flex;
+    gap: 25px;
+}
+
+.video-meta-item {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.meta-icon {
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .serial-header-card {
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+    }
+    
+    .serial-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .serial-header-card {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .serial-cover-large {
+        height: 400px;
+    }
+    
+    .serial-title-large {
+        font-size: 2rem;
+    }
+    
+    .serial-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .serial-actions {
+        flex-direction: column;
+    }
+    
+    .episodes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .episode-card {
+        height: auto;
+        flex-direction: column;
+    }
+    
+    .episode-thumbnail-wrapper {
+        width: 100%;
+        height: 200px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        const shortPlayId = "{{ short_play_id }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/episodes.js') }}"></script>
+{% endblock %}

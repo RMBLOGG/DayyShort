@@ -1,1 +1,81 @@
+{% extends "base.html" %}
 
+{% block title %}DayyShort - Beranda{% endblock %}
+
+{% block page_title %}Beranda{% endblock %}
+
+{% block content %}
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Serial</div>
+                        <div class="stat-number" id="totalShows">0</div>
+                    </div>
+                    <div class="stat-icon">📺</div>
+                </div>
+                <div class="stat-change">+12% dari minggu lalu</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Penonton</div>
+                        <div class="stat-number" id="totalViews">0</div>
+                    </div>
+                    <div class="stat-icon">👁️</div>
+                </div>
+                <div class="stat-change">+28% dari minggu lalu</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Serial Baru</div>
+                        <div class="stat-number" id="newShows">0</div>
+                    </div>
+                    <div class="stat-icon">🆕</div>
+                </div>
+                <div class="stat-change">+5 serial minggu ini</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Semua Serial</h2>
+                <p class="section-subtitle" id="contentName">Memuat...</p>
+            </div>
+            
+            <div class="section-actions">
+                <select id="sortSelect" class="sort-select">
+                    <option value="popularity">🔥 Terpopuler</option>
+                    <option value="newest">🆕 Terbaru</option>
+                    <option value="name">🔤 Nama A-Z</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Memuat serial...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <p>❌ Gagal memuat data. Silakan coba lagi nanti.</p>
+        </div>
+
+        <!-- Content Grid (2 Columns) -->
+        <div id="contentGrid" class="content-grid"></div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

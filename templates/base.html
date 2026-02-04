@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DayyShort - Serial Pendek Pilihan{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <h1>🎬 DayyShort</h1>
+                <p class="tagline">Serial Pendek Terbaik</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <!-- Main Menu -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Menu Utama</div>
+                    <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        <span>Beranda</span>
+                    </a>
+                    <a href="/theaters" class="nav-link {% if request.path == '/theaters' %}active{% endif %}">
+                        <span class="nav-icon">🎭</span>
+                        <span>Theaters</span>
+                        <span class="nav-badge">Hot</span>
+                    </a>
+                    <a href="/favorit" class="nav-link {% if request.path == '/favorit' %}active{% endif %}">
+                        <span class="nav-icon">⭐</span>
+                        <span>Favorit</span>
+                    </a>
+                    <a href="https://t.me/DayyAnime" class="nav-link">
+                        <span class="nav-icon">📲</span>
+                        <span>Kontak</span>
+                    </a>
+                    <a href="https://hoo.be/dayysky" class="nav-link">
+                        <span class="nav-icon">🌐</span>
+                        <span>Website Lainnya</span>
+                    </a>
+                </div>
+
+                <!-- Categories -->
+<!--                 <div class="nav-section">
+                    <div class="nav-section-title">Kategori</div>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">💕</span>
+                        <span>Romantis</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">⚔️</span>
+                        <span>Action</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">😂</span>
+                        <span>Komedi</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">😱</span>
+                        <span>Thriller</span>
+                    </a>
+                </div> -->
+
+                <!-- Library -->
+<!--                 <div class="nav-section">
+                    <div class="nav-section-title">Perpustakaan</div>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">📚</span>
+                        <span>Koleksi Saya</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">🕐</span>
+                        <span>Riwayat</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">⬇️</span>
+                        <span>Download</span>
+                    </a>
+                </div> -->
+
+                <!-- Settings -->
+    <!--             <div class="nav-section">
+                    <div class="nav-section-title">Lainnya</div>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Pengaturan</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">ℹ️</span>
+                        <span>Tentang</span>
+                    </a>
+                </div> -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        ☰
+                    </button>
+                    <h2 class="page-title">{% block page_title %}Beranda{% endblock %}</h2>
+                </div>
+
+                <div class="header-right">
+                    <!-- Search -->
+                    <div class="header-search">
+                        <input type="text" id="searchInput" placeholder="🔍 Cari serial...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="header-actions">
+                        <button class="header-btn" title="Notifikasi">
+                            🔔
+                        </button>
+                        <button class="header-btn" title="Profile">
+                            👤
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                {% block content %}{% endblock %}
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2026 DayyShort. Powered by Dayy.</p>
+                <p class="footer-links">
+                    <a href="https://t.me/DayyAnime">Kontak</a>
+                    <a href="https://hoo.be/dayysky">Website Lainnya</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody" class="modal-body">
+                <!-- Content akan diisi oleh JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Toggle Sidebar for Mobile
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

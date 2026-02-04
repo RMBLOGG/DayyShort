@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}DayyShort - Favorit{% endblock %}
+
+{% block page_title %}Favorit Saya{% endblock %}
+
+{% block content %}
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Favorit</div>
+                        <div class="stat-number" id="totalFavorites">0</div>
+                    </div>
+                    <div class="stat-icon">⭐</div>
+                </div>
+                <div class="stat-change">Koleksi tersimpan</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Sedang Ditonton</div>
+                        <div class="stat-number" id="watchingCount">0</div>
+                    </div>
+                    <div class="stat-icon">📺</div>
+                </div>
+                <div class="stat-change">Serial aktif</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Selesai Ditonton</div>
+                        <div class="stat-number" id="completedCount">0</div>
+                    </div>
+                    <div class="stat-icon">✅</div>
+                </div>
+                <div class="stat-change">Serial tamat</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Serial Favorit</h2>
+                <p class="section-subtitle">Koleksi serial yang Anda sukai</p>
+            </div>
+            
+            <div class="section-actions">
+                <select id="filterSelect" class="sort-select">
+                    <option value="all">📚 Semua</option>
+                    <option value="watching">📺 Sedang Ditonton</option>
+                    <option value="completed">✅ Selesai</option>
+                    <option value="plan">📋 Rencana Tonton</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="error-message" style="background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: var(--text-secondary);">
+            <p style="font-size: 3rem; margin-bottom: 20px;">⭐</p>
+            <p style="font-size: 1.2rem; margin-bottom: 10px;">Belum ada serial favorit</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Tambahkan serial ke favorit untuk melihatnya di sini</p>
+            <a href="/" class="btn-episodes" style="margin-top: 20px; display: inline-block;">
+                🏠 Jelajahi Serial
+            </a>
+        </div>
+
+        <!-- Content Grid (2 Columns) -->
+        <div id="contentGrid" class="content-grid" style="display: none;"></div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Temporary: Show empty state
+        // In real implementation, this would fetch from localStorage or backend
+        document.getElementById('emptyState').style.display = 'block';
+        
+        // Example: Load favorites from localStorage
+        function loadFavorites() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            
+            if (favorites.length > 0) {
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('contentGrid').style.display = 'grid';
+                // Render favorites here
+            } else {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('contentGrid').style.display = 'none';
+            }
+            
+            // Update stats
+            document.getElementById('totalFavorites').textContent = favorites.length;
+        }
+        
+        loadFavorites();
+    </script>
+{% endblock %}

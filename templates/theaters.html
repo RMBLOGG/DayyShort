@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}DayyShort - Theaters{% endblock %}
+
+{% block page_title %}Theaters{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Theaters</div>
+                        <div class="stat-number" id="totalTheaters">0</div>
+                    </div>
+                    <div class="stat-icon">🎭</div>
+                </div>
+                <div class="stat-change">Drama terbaik tersedia</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Premium Drama</div>
+                        <div class="stat-number" id="premiumCount">0</div>
+                    </div>
+                    <div class="stat-icon">⭐</div>
+                </div>
+                <div class="stat-change">Koleksi eksklusif</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Viral Minggu Ini</div>
+                        <div class="stat-number" id="viralCount">0</div>
+                    </div>
+                    <div class="stat-icon">🔥</div>
+                </div>
+                <div class="stat-change">Sedang trending</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">🎭 Drama Theaters</h2>
+                <p class="section-subtitle">Koleksi drama viral dan premium pilihan terbaik</p>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Memuat theaters...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <p>❌ Gagal memuat data. Silakan coba lagi nanti.</p>
+        </div>
+
+        <!-- Theaters Container -->
+        <div id="theatersContainer"></div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/theaters.js') }}"></script>
+{% endblock %}
