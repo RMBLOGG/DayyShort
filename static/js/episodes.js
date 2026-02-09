@@ -9,8 +9,7 @@ const episodesSection = document.getElementById('episodesSection');
 const episodesGrid = document.getElementById('episodesGrid');
 const videoModal = document.getElementById('videoModal');
 const videoClose = document.querySelector('.video-close');
-const modal = document.getElementById('detailModal');
-const closeModal = document.querySelector('.close');
+const episodeSort = document.getElementById('episodeSort');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,22 +19,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup Event Listeners
 function setupEventListeners() {
-    if (closeModal) {
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
-    
     if (videoClose) {
         videoClose.addEventListener('click', () => {
             closeVideoModal();
         });
     }
     
+    if (episodeSort) {
+        episodeSort.addEventListener('change', (e) => {
+            sortEpisodes(e.target.value);
+        });
+    }
+    
     window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
         if (e.target === videoModal) {
             closeVideoModal();
         }
@@ -110,6 +106,12 @@ function renderSerialInfo(data) {
     // Stats
     document.getElementById('defaultLikeNums').textContent = formatNumber(data.defaultLikeNums || 0);
     document.getElementById('defaultChaseNums').textContent = formatNumber(data.defaultChaseNums || 0);
+    
+    // Episode count
+    const episodeCount = document.getElementById('episodeCount');
+    if (episodeCount) {
+        episodeCount.textContent = `${data.totalEpisode || 0} episode`;
+    }
 }
 
 // Render Episodes
@@ -127,44 +129,52 @@ function renderEpisodes(episodes) {
     });
 }
 
-// Create Episode Card
+// Sort Episodes
+function sortEpisodes(order) {
+    if (!episodeData || !episodeData.shortPlayEpisodeInfos) return;
+    
+    const episodes = [...episodeData.shortPlayEpisodeInfos];
+    
+    if (order === 'desc') {
+        episodes.reverse();
+    }
+    
+    renderEpisodes(episodes);
+}
+
+// Create Episode Card - NEW DESIGN (NO LOCK)
 function createEpisodeCard(episode) {
     const card = document.createElement('div');
     card.className = 'episode-card';
     
-    // Check if locked
-    const isLocked = episode.isLock || false;
-    const isVip = episode.isVip || false;
-    const isAd = episode.isAd || false;
-    
     card.innerHTML = `
-        <div class="episode-image-container">
-            <img src="${episode.episodeCover}" alt="Episode ${episode.episodeNo}" class="episode-image" loading="lazy" onerror="this.src='https://via.placeholder.com/360x640?text=Episode+${episode.episodeNo}'">
-            ${isLocked ? '<div class="episode-lock">🔒</div>' : ''}
-            ${isVip ? '<div class="episode-vip">VIP</div>' : ''}
-            ${isAd ? '<div class="episode-ad">AD</div>' : ''}
-            <div class="episode-number">EP ${episode.episodeNo}</div>
-        </div>
-        <div class="episode-info">
-            <h4 class="episode-title">Episode ${episode.episodeNo}</h4>
-            <div class="episode-stats">
-                <span class="episode-stat">👍 ${episode.likeNums || '0'}</span>
-                <span class="episode-stat">👁️ ${episode.chaseNums || '0'}</span>
+        <div class="episode-thumbnail-wrapper">
+            <img src="${episode.episodeCover || 'https://via.placeholder.com/640x360?text=Episode+' + episode.episodeNo}" 
+                 alt="Episode ${episode.episodeNo}" 
+                 class="episode-thumbnail" 
+                 loading="lazy">
+            
+            <div class="episode-number-badge">EP ${episode.episodeNo}</div>
+            
+            <div class="episode-play-overlay">
+                <div class="episode-play-icon">▶</div>
             </div>
-            ${episode.playClarity ? `<div class="episode-quality">${episode.playClarity}</div>` : ''}
+        </div>
+        
+        <div class="episode-info-content">
+            <h3 class="episode-title">${episode.episodeName || 'Episode ' + episode.episodeNo}</h3>
+            
+            <div class="episode-meta">
+                <span class="episode-meta-item">👍 ${formatNumber(episode.likeNums || 0)}</span>
+                <span class="episode-meta-item">👁️ ${formatNumber(episode.chaseNums || 0)}</span>
+                ${episode.playClarity ? `<span class="episode-quality-badge">${episode.playClarity}</span>` : ''}
+            </div>
         </div>
     `;
     
-    // Add click event
-    if (!isLocked) {
-        card.style.cursor = 'pointer';
-        card.onclick = () => playEpisode(episode);
-    } else {
-        card.style.opacity = '0.7';
-        card.onclick = () => {
-            alert('Episode ini terkunci. Silakan buka kunci untuk menonton.');
-        };
-    }
+    // All episodes are playable
+    card.style.cursor = 'pointer';
+    card.onclick = () => playEpisode(episode);
     
     return card;
 }
@@ -175,27 +185,43 @@ function playEpisode(episode) {
     const videoTitle = document.getElementById('videoTitle');
     const videoLikes = document.getElementById('videoLikes');
     const videoChases = document.getElementById('videoChases');
+    const videoViews = document.getElementById('videoViews');
     
     // Set video source
-    videoElement.src = episode.playVoucher || '';
+    if (episode.playVoucher) {
+        videoElement.querySelector('source').src = episode.playVoucher;
+        videoElement.load();
+    }
     
     // Set info
-    videoTitle.textContent = `Episode ${episode.episodeNo}`;
-    videoLikes.textContent = `${episode.likeNums || '0'} Likes`;
-    videoChases.textContent = `${episode.chaseNums || '0'} Views`;
+    videoTitle.textContent = episode.episodeName || `Episode ${episode.episodeNo}`;
+    
+    if (videoLikes) {
+        videoLikes.innerHTML = `<span class="meta-icon">👍</span> ${formatNumber(episode.likeNums || 0)}`;
+    }
+    
+    if (videoChases) {
+        videoChases.innerHTML = `<span class="meta-icon">📌</span> ${formatNumber(episode.chaseNums || 0)}`;
+    }
+    
+    if (videoViews) {
+        videoViews.textContent = formatNumber(episode.chaseNums || 0);
+    }
     
     // Show modal
     videoModal.style.display = 'block';
     
     // Play video
-    videoElement.play();
+    videoElement.play().catch(err => {
+        console.error('Error playing video:', err);
+    });
 }
 
 // Close Video Modal
 function closeVideoModal() {
     const videoElement = document.getElementById('videoElement');
     videoElement.pause();
-    videoElement.src = '';
+    videoElement.currentTime = 0;
     videoModal.style.display = 'none';
 }
 
